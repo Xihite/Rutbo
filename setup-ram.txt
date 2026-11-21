@@ -1,0 +1,50 @@
+SETUP PAPER.JAR - 8 GB MIN / 12 GB MAX RAM
+=========================================
+
+Requisito: Java 21 (Paper 1.20.5+ / 26.x usa Java 21)
+
+Script de arranque (paper.sh)
+-----------------------------
+Crea un archivo `paper.sh` en la misma carpeta del jar:
+
+#!/bin/bash
+cd "$(dirname "$0")"
+java -Xms8G -Xmx12G \
+  -XX:+UseG1GC \
+  -XX:+ParallelRefProcEnabled \
+  -XX:MaxGCPauseMillis=200 \
+  -XX:+UnlockExperimentalVMOptions \
+  -XX:+DisableExplicitGC \
+  -XX:+AlwaysPreTouch \
+  -XX:G1NewSizePercent=30 \
+  -XX:G1MaxNewSizePercent=40 \
+  -XX:G1HeapRegionSize=8M \
+  -XX:G1ReservePercent=20 \
+  -XX:G1HeapWastePercent=5 \
+  -XX:G1MixedGCCountTarget=4 \
+  -XX:InitiatingHeapOccupancyPercent=15 \
+  -XX:G1MixedGCLiveThresholdPercent=90 \
+  -XX:G1RSetUpdatingPauseTimePercent=5 \
+  -XX:SurvivorRatio=32 \
+  -XX:+PerfDisableSharedMem \
+  -XX:MaxTenuringThreshold=1 \
+  -jar paper-26.3-257.jar nogui
+
+Notas:
+- `-Xms8G` = RAM minima asignada al heap.
+- `-Xmx12G` = RAM maxima del heap.
+- El resto de flags son los flags de Aikar, recomendados para Paper.
+- IMPORTANTE: la RAM real del proceso sera ~12 GB + overhead (~1-2 GB
+  extra para metaspace, hilos, etc). Asegurate de tener >= 14-15 GB de
+  RAM libre en la maquina.
+- `nogui` evita abrir la consola grafica. Quitalo si prefieres GUI.
+- `eula.txt`: al primer arranque Paper pedira aceptar la EULA. Edita
+  `eula.txt` y pon `eula=true`, o acpetala en la consola.
+
+Uso:
+  chmod +x paper.sh
+  ./paper.sh
+
+Si no quieres script, comandos equivalentes:
+  Minimo: -Xms8G
+  Maximo: -Xmx12G

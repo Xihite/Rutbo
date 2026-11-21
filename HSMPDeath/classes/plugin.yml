@@ -1,0 +1,20 @@
+name: HSMPDeath
+version: 1.0.0
+main: com.hsmpdeath.HSMPDeathPlugin
+api-version: '26.3'
+description: Muerte con espectador, kick con causa y temporizador de revive.
+authors: [Localhost Server]
+commands:
+  deathtime:
+    description: Tiempo hasta poder revivir tras morir
+    usage: /deathtime [cantidad+unidad s|t|m|h|d]
+  revive:
+    description: Revivir manualmente a un jugador muerto
+    usage: /revive <jugador>
+permissions:
+  hsmpdeath.deathtime:
+    description: Permite cambiar el tiempo de muerte
+    default: op
+  hsmpdeath.revive:
+    description: Permite revivir jugadores muertos
+    default: op

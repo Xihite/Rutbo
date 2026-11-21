@@ -1,0 +1,30 @@
+# Secretos y tunel (playit.toml contiene la secret_key - NUNCA commitear)
+tunnel/
+
+# Runtime del servidor
+eula.txt
+ops.json
+whitelist.json
+banned-ips.json
+banned-players.json
+usercache.json
+
+# Mundo y datos generados
+world*/
+logs/
+cache/
+libraries/
+versions/
+.paper/
+config/
+plugins/
+commands.yml
+bukkit.yml
+spigot.yml
+help.yml
+permissions.yml
+
+# Logs y jars de arranque
+*.log
+server-run*.log
+paper-*.jar

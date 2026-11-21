@@ -1,0 +1,21 @@
+# qAuth configuration
+#
+# ip-auto-login: si es true, un jugador que vuelva a entrar desde la misma
+# IP que guardo en su ultima autenticacion entra directo sin pedir login.
+#
+# IMPORTANTE con tuneles (playit, bore, ngrok...): si el tunel no reenvia
+# la IP real del cliente, TODOS los jugadores aparecen con la misma IP
+# (la del tunel). En ese caso pon esto en false, porque si no, cualquiera
+# que entre con tu nombre de usuario desde el mismo tunel entraria sin
+# pedir contraseña.
+ip-auto-login: false
+
+# Mensaje de bienvenida que se muestra UNA SOLA VEZ, justo despues de
+# registrar la cuenta (dialogo o chat).
+welcome:
+  enabled: true
+  lines:
+    - "Gracias por registrarte en nuestro servidor."
+    - "Disfruta tu estancia y recuerda las normas."
+  # URL clickeable (Discord, web, etc.). Dejala vacia para ocultarla.
+  discord-url: "https://discord.gg/TU-SERVIDOR"

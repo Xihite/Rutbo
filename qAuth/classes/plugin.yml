@@ -1,0 +1,13 @@
+name: qAuth
+version: 1.0.0
+main: com.qauth.QAuthPlugin
+api-version: '26.3'
+description: Autenticacion por dialogo (registro/login) con control por IP.
+authors: [Localhost Server]
+commands:
+  login:
+    description: Inicia sesion (clientes sin soporte de dialogos)
+    usage: /login <contrasena>
+  register:
+    description: Registro por chat (clientes sin soporte de dialogos)
+    usage: /register <contrasena> <confirmacion>

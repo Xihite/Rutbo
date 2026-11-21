@@ -1,0 +1,7 @@
+# HSMPDeath configuration
+#
+# Tiempo en milisegundos que un jugador debe esperar para revivir
+# despues de morir (por defecto 3 horas = 10800000).
+# Se puede cambiar en juego con /deathtime (permisos: hsmpdeath.deathtime)
+# Ejemplos: /deathtime 30s, /deathtime 100t, /deathtime 10m, /deathtime 2h, /deathtime 1d
+death-time-ms: 10800000
