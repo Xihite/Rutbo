@@ -130,29 +130,57 @@ public final class DifficultPlugin extends JavaPlugin implements Listener {
         String date = LocalDate.now().format(DATE_FMT);
         meta.getPersistentDataContainer().set(bookKey, PersistentDataType.BYTE, (byte) 1);
         meta.title(Component.text("Cambio de dificultad — " + date,
-                NamedTextColor.GOLD));
-        meta.author(Component.text("Difficult", NamedTextColor.GRAY));
+                NamedTextColor.DARK_RED).decoration(TextDecoration.BOLD, true));
+        meta.author(Component.text("Difficult", NamedTextColor.DARK_GRAY));
         meta.pages(
                 List.of(
-                        Component.text("Atención, aventurero.", NamedTextColor.YELLOW),
-                        Component.text("A partir de hoy el servidor tiene una nueva"
-                                + " dificultad. Esto es lo que cambia:", NamedTextColor.WHITE),
-                        Component.text("• Las herramientas de madera, piedra y cobre"
-                                + " se desgastan " + wearMultiplier + " veces más rápido.",
-                                NamedTextColor.WHITE),
-                        Component.text("• Los arcos pueden romperse con el uso."
-                                + " Craftea un Arco Reforzado colocando un arco en el"
-                                + " centro del crafteo, rodeado de hilos y palos.",
-                                NamedTextColor.WHITE),
-                        Component.text("• Los zombies tienen un "
-                                + Math.round(zombieSwordChance * 100)
-                                + "% de probabilidad de portar una espada.",
-                                NamedTextColor.WHITE),
-                        Component.text("¡Buena suerte!", NamedTextColor.YELLOW)
-                                .decoration(TextDecoration.BOLD, true))
+                        page(
+                                line("⚠ ", NamedTextColor.DARK_RED)
+                                        .append(Component.text("CAMBIO DE DIFICULTAD",
+                                                NamedTextColor.DARK_RED))
+                                        .decoration(TextDecoration.BOLD, true),
+                                line("A partir de hoy el servidor tiene una nueva"
+                                        + " dificultad:", NamedTextColor.BLACK)),
+                        page(
+                                bullet("Las herramientas de madera, piedra y cobre"
+                                        + " se desgastan " + wearMultiplier
+                                        + " veces más rápido."),
+                                bullet("Los arcos pueden romperse con el uso."
+                                        + " Craftea un Arco Reforzado colocando un"
+                                        + " arco en el centro del crafteo, rodeado"
+                                        + " de hilos y palos."),
+                                bullet("Los zombies tienen un "
+                                        + Math.round(zombieSwordChance * 100)
+                                        + "% de probabilidad de portar una espada.")),
+                        page(
+                                line("¡Buena suerte, aventurero!",
+                                        NamedTextColor.DARK_RED)
+                                        .decoration(TextDecoration.BOLD, true),
+                                line("— Difficult", NamedTextColor.DARK_GRAY)))
                 );
         book.setItemMeta(meta);
         return book;
+    }
+
+    /** Une varias lineas en una sola pagina de libro. */
+    private static Component page(Component... lines) {
+        Component out = Component.empty();
+        for (int i = 0; i < lines.length; i++) {
+            if (i > 0) {
+                out = out.append(Component.newline());
+            }
+            out = out.append(lines[i]);
+        }
+        return out;
+    }
+
+    private static Component line(String text, NamedTextColor color) {
+        return Component.text(text, color);
+    }
+
+    private static Component bullet(String text) {
+        return Component.text("• ", NamedTextColor.DARK_RED)
+                .append(Component.text(text, NamedTextColor.BLACK));
     }
 
     // ------------------------------------------------------------------
