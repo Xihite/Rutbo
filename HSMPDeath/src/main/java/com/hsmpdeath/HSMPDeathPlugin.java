@@ -169,10 +169,11 @@ public final class HSMPDeathPlugin extends JavaPlugin implements Listener, Comma
             }
             Location finalLoc = loc;
             Bukkit.getScheduler().runTaskLater(this, () -> {
-                if (player.isOnline()) {
-                    player.teleport(finalLoc);
-                    player.setGameMode(GameMode.SURVIVAL);
-                    player.sendMessage(Component.text(
+                Player p = Bukkit.getPlayer(uuid);
+                if (p != null && p.isOnline()) {
+                    p.teleport(finalLoc);
+                    p.setGameMode(GameMode.SURVIVAL);
+                    p.sendMessage(Component.text(
                             "Has revivido. Teletransportado a tu spawnpoint.",
                             NamedTextColor.GREEN));
                 }
@@ -262,10 +263,10 @@ public final class HSMPDeathPlugin extends JavaPlugin implements Listener, Comma
             sender.sendMessage("El jugador '" + target + "' no esta muerto.");
             return true;
         }
-        deaths.remove(targetUuid);
-        saveDeaths();
         Player online = Bukkit.getPlayer(targetUuid);
         if (online != null && online.isOnline()) {
+            deaths.remove(targetUuid);
+            saveDeaths();
             Location loc = rec.respawnLoc();
             if (loc == null || loc.getWorld() == null) {
                 loc = Bukkit.getWorlds().get(0).getSpawnLocation();
@@ -277,6 +278,13 @@ public final class HSMPDeathPlugin extends JavaPlugin implements Listener, Comma
                 online.sendMessage(Component.text(
                         "Has sido revivido por un administrador.", NamedTextColor.GREEN));
             });
+        } else {
+            // Jugador offline: no se puede cambiar su gamemode ahora.
+            // Se deja el registro marcado como expirado para que al entrar
+            // pase por el flujo normal de revive (spawn + supervivencia).
+            deaths.put(targetUuid, new DeathRecord(rec.name(), rec.message(), 0L,
+                    rec.deathLoc(), rec.respawnLoc()));
+            saveDeaths();
         }
         sender.sendMessage(target + " ya puede revivir.");
         getLogger().info(sender.getName() + " revivio a " + target);
