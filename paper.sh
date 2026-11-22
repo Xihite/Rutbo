@@ -44,9 +44,25 @@ start_playit() {
 
     # ¿daemon ya corriendo?
     if ! "$PLAYITCLI" --socket-path="$SOCK" status >/dev/null 2>&1; then
-        setsid nohup "$PLAYITD" --socket-path="$SOCK" --secret-path="$SECRET" \
-              --log-path="$PLOG" >>"$DIR/tunnel/playitd.out" 2>&1 < /dev/null &
-        sleep 2
+        # Quitar socket residual de una ejecucion anterior
+        [ -S "$SOCK" ] && rm -f "$SOCK"
+        for _ in 1 2; do
+            setsid nohup "$PLAYITD" --socket-path="$SOCK" --secret-path="$SECRET" \
+                  --log-path="$PLOG" >>"$DIR/tunnel/playitd.out" 2>&1 < /dev/null &
+            # Esperar a que el daemon responda (max ~15s por intento)
+            for _ in $(seq 1 15); do
+                "$PLAYITCLI" --socket-path="$SOCK" status >/dev/null 2>&1 && break 2
+                sleep 1
+            done
+            echo "[playit] El daemon no respondio; reintentando..."
+        done
+        if ! "$PLAYITCLI" --socket-path="$SOCK" status >/dev/null 2>&1; then
+            echo "============================================================"
+            echo " [playit] ERROR: el tunel no pudo iniciarse."
+            echo " Revisa:  tail -20 $DIR/tunnel/playitd.out"
+            echo "          tail -20 $DIR/tunnel/playit.log"
+            echo "============================================================"
+        fi
     fi
 
     if [ ! -f "$SECRET" ]; then
