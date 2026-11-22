@@ -118,7 +118,7 @@
     "minecraft:custom": {
       "minecraft:time_since_rest": 64,
       "minecraft:talked_to_villager": 1,
-      "minecraft:leave_game": 33,
+      "minecraft:leave_game": 34,
       "minecraft:damage_taken": 4631,
       "minecraft:mob_kills": 70,
       "minecraft:time_since_death": 44,
@@ -183,8 +183,8 @@
       "minecraft:short_grass": 97,
       "minecraft:acacia_leaves": 3,
       "minecraft:furnace": 7,
-      "minecraft:clay": 4,
       "minecraft:crafting_table": 11,
+      "minecraft:clay": 4,
       "minecraft:deepslate_copper_ore": 2,
       "minecraft:copper_ore": 14,
       "minecraft:tall_grass": 3,

@@ -7,15 +7,25 @@ import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
+import org.bukkit.entity.AbstractSkeleton;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.ShulkerBullet;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
@@ -24,13 +34,19 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 /**
  * Cambio de dificultad diario:
- *  - Las herramientas de madera, piedra y cobre se desgastan mas rapido.
- *  - Los arcos pueden romperse; se craftea un Arco Reforzado poniendo un
- *    arco en el centro del crafteo rodeado de hilos y palos.
- *  - Los zombies tienen una probabilidad de portar una espada.
+ *  - Los arcos sufren un 50% mas de desgaste al dispararse (el Arco
+ *    Reforzado esta exento).
+ *  - Las espadas de madera se rompen 10 veces mas rapido.
+ *  - El 50% de los zombies portan una hacha de hierro y corren mas
+ *    rapido (efecto Velocidad).
+ *  - Los esqueletos disparan flechas que, al impactar, liberan balas de
+ *    shulker contra la entidad viva mas cercana.
  *
  * Cada jugador que entre sin tener el libro recibe el "libro del cambio
  * de dificultad del dia" con el resumen de los cambios.
@@ -39,25 +55,27 @@ public final class DifficultPlugin extends JavaPlugin implements Listener {
 
     private static final DateTimeFormatter DATE_FMT =
             DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ROOT);
+    private static final TextColor ORANGE = TextColor.color(0xCC5500);
 
     private NamespacedKey bookKey;
     private NamespacedKey bowKey;
     private NamespacedKey recipeKey;
-    private int wearMultiplier;
-    private double zombieSwordChance;
-    private Material zombieSword;
+    private double bowWearMultiplier;
+    private int swordWearMultiplier;
+    private double zombieEquipChance;
+    private int zombieSpeedAmplifier;
+    private int shulkerBulletCount;
+    private double shulkerTargetRadius;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        wearMultiplier = Math.max(1, getConfig().getInt("wear-multiplier", 2));
-        zombieSwordChance = getConfig().getDouble("zombie-sword-chance", 0.5);
-        zombieSword = Material.matchMaterial(
-                getConfig().getString("zombie-sword", "IRON_SWORD"));
-        if (zombieSword == null || !zombieSword.isItem()) {
-            zombieSword = Material.IRON_SWORD;
-        }
-        zombieSwordChance = Math.max(0.0, Math.min(1.0, zombieSwordChance));
+        bowWearMultiplier = getConfig().getDouble("bow-wear-multiplier", 1.5);
+        swordWearMultiplier = Math.max(1, getConfig().getInt("wooden-sword-wear-multiplier", 10));
+        zombieEquipChance = clamp01(getConfig().getDouble("zombie-equip-chance", 0.5));
+        zombieSpeedAmplifier = Math.max(0, getConfig().getInt("zombie-speed-amplifier", 0));
+        shulkerBulletCount = Math.max(1, getConfig().getInt("shulker-bullet-count", 5));
+        shulkerTargetRadius = Math.max(1.0, getConfig().getDouble("shulker-target-radius", 16.0));
 
         bookKey = new NamespacedKey(this, "daily_book");
         bowKey = new NamespacedKey(this, "reinforced_bow");
@@ -65,8 +83,14 @@ public final class DifficultPlugin extends JavaPlugin implements Listener {
 
         registerReinforcedBowRecipe();
         Bukkit.getPluginManager().registerEvents(this, this);
-        getLogger().info("Difficult habilitado. Desgaste x" + wearMultiplier
-                + ", espada zombie " + Math.round(zombieSwordChance * 100) + "%");
+        getLogger().info("Difficult habilitado. Arco x" + bowWearMultiplier
+                + ", espada madera x" + swordWearMultiplier
+                + ", zombie equip " + Math.round(zombieEquipChance * 100) + "%"
+                + ", balas shulker " + shulkerBulletCount);
+    }
+
+    private static double clamp01(double v) {
+        return Math.max(0.0, Math.min(1.0, v));
     }
 
     // ------------------------------------------------------------------
@@ -129,34 +153,30 @@ public final class DifficultPlugin extends JavaPlugin implements Listener {
         }
         String date = LocalDate.now().format(DATE_FMT);
         meta.getPersistentDataContainer().set(bookKey, PersistentDataType.BYTE, (byte) 1);
-        meta.title(Component.text("Cambio de dificultad — " + date,
-                NamedTextColor.DARK_RED).decoration(TextDecoration.BOLD, true));
+        meta.title(Component.text("Cambio de dificultad — " + date, ORANGE)
+                .decoration(TextDecoration.BOLD, true));
         meta.author(Component.text("Difficult", NamedTextColor.DARK_GRAY));
         meta.pages(
                 List.of(
                         page(
-                                line("⚠ ", NamedTextColor.DARK_RED)
-                                        .append(Component.text("CAMBIO DE DIFICULTAD",
-                                                NamedTextColor.DARK_RED))
+                                line("⚠ CAMBIO DE DIFICULTAD", ORANGE)
                                         .decoration(TextDecoration.BOLD, true),
                                 line("A partir de hoy el servidor tiene una nueva"
                                         + " dificultad:", NamedTextColor.BLACK)),
                         page(
-                                bullet("Las herramientas de madera, piedra y cobre"
-                                        + " se desgastan " + wearMultiplier
-                                        + " veces más rápido."),
-                                bullet("Los arcos pueden romperse con el uso."
-                                        + " Craftea un Arco Reforzado colocando un"
-                                        + " arco en el centro del crafteo, rodeado"
-                                        + " de hilos y palos."),
-                                bullet("Los zombies tienen un "
-                                        + Math.round(zombieSwordChance * 100)
-                                        + "% de probabilidad de portar una espada.")),
+                                bullet("Los arcos sufren un 50% más de desgaste al"
+                                        + " dispararse. El Arco Reforzado está exento."),
+                                bullet("Las espadas de madera se rompen "
+                                        + swordWearMultiplier + " veces más rápido."),
+                                bullet("El 50% de los zombies portan una hacha de"
+                                        + " hierro y corren más rápido."),
+                                bullet("Los esqueletos disparan flechas que, al"
+                                        + " impactar, liberan balas de shulker contra"
+                                        + " la entidad más cercana.")),
                         page(
-                                line("¡Buena suerte, aventurero!",
-                                        NamedTextColor.DARK_RED)
+                                line("¡Buena suerte, aventurero!", ORANGE)
                                         .decoration(TextDecoration.BOLD, true),
-                                line("— Difficult", NamedTextColor.DARK_GRAY)))
+                                line("— Difficult", ORANGE)))
                 );
         book.setItemMeta(meta);
         return book;
@@ -174,17 +194,17 @@ public final class DifficultPlugin extends JavaPlugin implements Listener {
         return out;
     }
 
-    private static Component line(String text, NamedTextColor color) {
+    private static Component line(String text, TextColor color) {
         return Component.text(text, color);
     }
 
     private static Component bullet(String text) {
-        return Component.text("• ", NamedTextColor.DARK_RED)
+        return Component.text("• ", ORANGE)
                 .append(Component.text(text, NamedTextColor.BLACK));
     }
 
     // ------------------------------------------------------------------
-    // Desgaste acelerado de herramientas y arcos
+    // Desgaste: arcos +50% al disparar, espadas de madera x10
     // ------------------------------------------------------------------
     @EventHandler
     public void onItemDamage(PlayerItemDamageEvent event) {
@@ -194,24 +214,12 @@ public final class DifficultPlugin extends JavaPlugin implements Listener {
             if (isReinforced(item)) {
                 return; // el arco reforzado conserva su durabilidad normal
             }
-            event.setDamage(event.getDamage() * wearMultiplier);
+            event.setDamage((int) Math.ceil(event.getDamage() * bowWearMultiplier));
             return;
         }
-        if (isPenaltyTool(type)) {
-            event.setDamage(event.getDamage() * wearMultiplier);
+        if (type == Material.WOODEN_SWORD) {
+            event.setDamage(event.getDamage() * swordWearMultiplier);
         }
-    }
-
-    private boolean isPenaltyTool(Material type) {
-        String name = type.name();
-        for (String tier : new String[]{"WOODEN_", "STONE_", "COPPER_"}) {
-            if (!name.startsWith(tier)) {
-                continue;
-            }
-            return name.endsWith("_PICKAXE") || name.endsWith("_AXE")
-                    || name.endsWith("_SHOVEL") || name.endsWith("_HOE");
-        }
-        return false;
     }
 
     private boolean isReinforced(ItemStack item) {
@@ -221,20 +229,71 @@ public final class DifficultPlugin extends JavaPlugin implements Listener {
     }
 
     // ------------------------------------------------------------------
-    // Zombies con espada (probabilidad configurable)
+    // Zombies: 50% llevan hacha de hierro y corren mas rapido
     // ------------------------------------------------------------------
     @EventHandler
     public void onCreatureSpawn(CreatureSpawnEvent event) {
         if (!(event.getEntity() instanceof Zombie zombie)) {
             return;
         }
-        if (ThreadLocalRandom.current().nextDouble() >= zombieSwordChance) {
+        if (ThreadLocalRandom.current().nextDouble() >= zombieEquipChance) {
             return;
         }
         if (zombie.getEquipment() == null
                 || !zombie.getEquipment().getItemInMainHand().getType().isAir()) {
             return;
         }
-        zombie.getEquipment().setItemInMainHand(new ItemStack(zombieSword));
+        zombie.getEquipment().setItemInMainHand(new ItemStack(Material.IRON_AXE));
+        zombie.addPotionEffect(new PotionEffect(PotionEffectType.SPEED,
+                PotionEffect.INFINITE_DURATION, zombieSpeedAmplifier,
+                false, false, false));
+    }
+
+    // ------------------------------------------------------------------
+    // Esqueletos: la flecha impacta -> balas de shulker a la entidad
+    // viva mas cercana al punto de impacto
+    // ------------------------------------------------------------------
+    @EventHandler
+    public void onProjectileHit(ProjectileHitEvent event) {
+        if (!(event.getEntity() instanceof Arrow arrow)
+                || !(arrow.getShooter() instanceof AbstractSkeleton shooter)) {
+            return;
+        }
+        World world = arrow.getWorld();
+        Location loc = arrow.getLocation();
+        Entity target = nearestLiving(world, loc, shooter);
+        if (target == null) {
+            return;
+        }
+        for (int i = 0; i < shulkerBulletCount; i++) {
+            ShulkerBullet bullet = world.spawn(loc, ShulkerBullet.class);
+            bullet.setTarget(target);
+            bullet.setVelocity(new Vector(
+                    (ThreadLocalRandom.current().nextDouble() - 0.5) * 0.8,
+                    0.35 + ThreadLocalRandom.current().nextDouble() * 0.35,
+                    (ThreadLocalRandom.current().nextDouble() - 0.5) * 0.8));
+        }
+    }
+
+    private Entity nearestLiving(World world, Location loc, Entity exclude) {
+        Entity best = null;
+        double bestDist = Double.MAX_VALUE;
+        for (Entity e : world.getNearbyEntities(loc,
+                shulkerTargetRadius, shulkerTargetRadius, shulkerTargetRadius)) {
+            if (e == exclude || !(e instanceof LivingEntity le) || le.isDead()
+                    || !e.isValid()) {
+                continue;
+            }
+            if (e instanceof Player p && (p.getGameMode() == GameMode.CREATIVE
+                    || p.getGameMode() == GameMode.SPECTATOR)) {
+                continue;
+            }
+            double d = e.getLocation().distanceSquared(loc);
+            if (d < bestDist) {
+                bestDist = d;
+                best = e;
+            }
+        }
+        return best;
     }
 }

@@ -1,7 +1,14 @@
 # Dificultad diaria
-# Multiplicador de desgaste para herramientas de madera/piedra/cobre y arcos.
-wear-multiplier: 2
-# Probabilidad (0.0 - 1.0) de que un zombie aparezca con espada en la mano.
-zombie-sword-chance: 0.5
-# Material de la espada que portan los zombies.
-zombie-sword: IRON_SWORD
+# Multiplicador de desgaste de arcos al dispararse (1.5 = +50%).
+bow-wear-multiplier: 1.5
+# Multiplicador de desgaste de las espadas de madera.
+wooden-sword-wear-multiplier: 10
+# Probabilidad (0.0 - 1.0) de que un zombie lleve hacha de hierro
+# y corra mas rapido.
+zombie-equip-chance: 0.5
+# Nivel del efecto Velocidad en zombies armados (0 = Speed I, 1 = Speed II...).
+zombie-speed-amplifier: 0
+# Balas de shulker que suelta cada flecha de esqueletos al impactar.
+shulker-bullet-count: 5
+# Radio (bloques) de busqueda de la entidad mas cercana al impacto.
+shulker-target-radius: 16
