@@ -1,0 +1,7 @@
+# Dificultad diaria
+# Multiplicador de desgaste para herramientas de madera/piedra/cobre y arcos.
+wear-multiplier: 2
+# Probabilidad (0.0 - 1.0) de que un zombie aparezca con espada en la mano.
+zombie-sword-chance: 0.5
+# Material de la espada que portan los zombies.
+zombie-sword: IRON_SWORD

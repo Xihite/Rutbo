@@ -10,19 +10,24 @@ banned-players.json
 usercache.json
 
 # Mundo y datos generados
-world*/
+world/session.lock
 logs/
 cache/
 libraries/
 versions/
 .paper/
 config/
-plugins/
 commands.yml
 bukkit.yml
 spigot.yml
 help.yml
 permissions.yml
+
+# Credenciales de qAuth (hashes de contrasena - NUNCA commitear)
+plugins/qAuth/accounts.yml
+
+# Datos temporales del profiler spark
+plugins/spark/tmp/
 
 # Logs y jars de arranque
 *.log

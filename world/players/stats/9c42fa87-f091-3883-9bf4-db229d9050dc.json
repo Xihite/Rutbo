@@ -1,0 +1,111 @@
+{
+  "stats": {
+    "minecraft:killed_by": {
+      "minecraft:skeleton": 1
+    },
+    "minecraft:picked_up": {
+      "minecraft:porkchop": 7,
+      "minecraft:straw_bed": 1,
+      "minecraft:dirt": 20,
+      "minecraft:brewing_stand": 1,
+      "minecraft:cobblestone": 35,
+      "minecraft:poppy": 2,
+      "minecraft:white_wool": 7,
+      "minecraft:spruce_boat": 2,
+      "minecraft:white_bed": 1,
+      "minecraft:crafting_table": 3,
+      "minecraft:iron_ingot": 6,
+      "minecraft:written_book": 1,
+      "minecraft:raw_iron": 8,
+      "minecraft:spruce_log": 13,
+      "minecraft:coal": 16,
+      "minecraft:oak_log": 10,
+      "minecraft:wheat_seeds": 9,
+      "minecraft:mutton": 12,
+      "minecraft:yellow_cushion": 2,
+      "minecraft:spruce_button": 8
+    },
+    "minecraft:used": {
+      "minecraft:straw_bed": 1,
+      "minecraft:spruce_boat": 2,
+      "minecraft:crafting_table": 4,
+      "minecraft:wooden_pickaxe": 10,
+      "minecraft:iron_pickaxe": 53,
+      "minecraft:white_bed": 1,
+      "minecraft:bread": 9,
+      "minecraft:written_book": 4,
+      "minecraft:dirt": 19,
+      "minecraft:copper_axe": 37,
+      "minecraft:cobblestone": 3
+    },
+    "minecraft:dropped": {
+      "minecraft:wheat_seeds": 7,
+      "minecraft:spruce_button": 8,
+      "minecraft:written_book": 1
+    },
+    "minecraft:custom": {
+      "minecraft:time_since_rest": 1703,
+      "minecraft:leave_game": 4,
+      "minecraft:mob_kills": 13,
+      "minecraft:damage_taken": 559,
+      "minecraft:boat_one_cm": 35383,
+      "minecraft:time_since_death": 31608,
+      "minecraft:sleep_in_bed": 1,
+      "minecraft:total_world_time": 36966,
+      "minecraft:swim_one_cm": 1056,
+      "minecraft:crouch_one_cm": 4024,
+      "minecraft:climb_one_cm": 920,
+      "minecraft:deaths": 1,
+      "minecraft:interact_with_crafting_table": 7,
+      "minecraft:walk_one_cm": 34866,
+      "minecraft:walk_under_water_one_cm": 155,
+      "minecraft:play_time": 36966,
+      "minecraft:damage_dealt": 3062,
+      "minecraft:sleep_in_straw_bed": 1,
+      "minecraft:jump": 738,
+      "minecraft:drop": 8,
+      "minecraft:sprint_one_cm": 95362,
+      "minecraft:open_chest": 11,
+      "minecraft:fall_one_cm": 21075,
+      "minecraft:fly_one_cm": 580366,
+      "minecraft:walk_on_water_one_cm": 3772,
+      "minecraft:sneak_time": 3352
+    },
+    "minecraft:crafted": {
+      "minecraft:white_bed": 1,
+      "minecraft:stick": 84,
+      "minecraft:wooden_pickaxe": 2,
+      "minecraft:spruce_boat": 1,
+      "minecraft:oak_planks": 40,
+      "minecraft:spruce_planks": 52,
+      "minecraft:iron_pickaxe": 1,
+      "minecraft:crafting_table": 2,
+      "minecraft:spruce_button": 8
+    },
+    "minecraft:mined": {
+      "minecraft:tall_grass": 12,
+      "minecraft:bush": 2,
+      "minecraft:dirt": 4,
+      "minecraft:spruce_log": 14,
+      "minecraft:straw_bed": 1,
+      "minecraft:grass_block": 16,
+      "minecraft:coal_ore": 16,
+      "minecraft:spruce_leaves": 2,
+      "minecraft:white_bed": 1,
+      "minecraft:short_grass": 41,
+      "minecraft:oak_leaves": 3,
+      "minecraft:brewing_stand": 1,
+      "minecraft:crafting_table": 3,
+      "minecraft:leaf_litter": 1,
+      "minecraft:oak_log": 10,
+      "minecraft:iron_ore": 8,
+      "minecraft:stone": 36
+    },
+    "minecraft:killed": {
+      "minecraft:iron_golem": 2,
+      "minecraft:pig": 4,
+      "minecraft:sheep": 7
+    }
+  },
+  "DataVersion": 5023
+}
